@@ -9,8 +9,8 @@ Introduction
     :target: https://discord.gg/nBQh6qu
     :alt: Discord
 
-.. image:: https://travis-ci.com/bwshockley/CircuitPython_i2cEncoderLibV21.svg?branch=master
-    :target: https://travis-ci.com/bwshockley/CircuitPython_i2cEncoderLibV21
+.. image:: https://travis-ci.com/bwshockley/CircuitPython-i2cEncoderLibV21.svg?branch=master
+    :target: https://travis-ci.com/bwshockley/CircuitPython-i2cEncoderLibV21
     :alt: Build Status
 
 This is the description.
