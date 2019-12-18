@@ -3,12 +3,12 @@
 # Author: Ben Shockley
 
 # imports
-import i2cEncoderLibV21
 import busio
 import board
 import time
 import digitalio
 import struct
+import i2cEncoderLibV21
 
 # Setup the Inturrpt Pin from the encoder.  
 INT = digitalio.DigitalInOut(board.A3)
