@@ -3,11 +3,11 @@
 # Author: Ben Shockley
 
 # imports
+import time
+import struct
 import busio
 import board
-import time
 import digitalio
-import struct
 import i2cEncoderLibV21
 
 # Setup the Inturrpt Pin from the encoder.  
