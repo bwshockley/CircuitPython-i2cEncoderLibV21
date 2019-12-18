@@ -35,8 +35,9 @@ Implementation Notes
 * Adafruit's Bus Device library: https://github.com/adafruit/Adafruit_CircuitPython_BusDevice
 """
 # imports
-from adafruit_bus_device.i2c_device import I2CDevice
 import struct
+from adafruit_bus_device.i2c_device import I2CDevice
+
 
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/bwshockley/CircuitPython_i2cEncoderLibV21.git"
@@ -157,7 +158,7 @@ GP_INT_BE = 0x18
 # Gamma configuration #
 
 GAMMA_OFF = 0
-GAMMA_1 = 1,
+GAMMA_1 = 1
 GAMMA_1_8 = 2
 GAMMA_2 = 3
 GAMMA_2_2 = 4
