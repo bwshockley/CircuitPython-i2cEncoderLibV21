@@ -44,7 +44,7 @@ install:
   - pip install --force-reinstall pylint==1.9.2
 
 script:
-  - pylint i2cencoderlibv21.py
+  - pylint i2cEncoderLibV21.py
   - ([[ ! -d "examples" ]] || pylint --disable=missing-docstring,invalid-name,bad-whitespace examples/*.py)
   - circuitpython-build-bundles --filename_prefix circuitpython-i2cencoderlibv21 --library_location .
   - cd docs && sphinx-build -E -W -b html . _build/html && cd ..
