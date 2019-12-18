@@ -47,4 +47,3 @@ script:
   - pylint i2cEncoderLibV21.py
   - ([[ ! -d "examples" ]] || pylint --disable=missing-docstring,invalid-name,bad-whitespace examples/*.py)
   - circuitpython-build-bundles --filename_prefix circuitpython-i2cEncoderLibV21 --library_location .
-  - cd docs && sphinx-build -E -W -b html . _build/html && cd ..
