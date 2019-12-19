@@ -217,7 +217,7 @@ class I2CEncoderLibV21:
 
     def read_config(self):
         """Read the configuration"""
-        config = self._read_reg(REG_GCONF)
+        return self._read_reg(REG_GCONF)
 
 
 
@@ -313,8 +313,7 @@ class I2CEncoderLibV21:
     def readStatus(self, status) :
         if (self.stat & status) != 0 :
             return True
-        else:
-            return False
+        return False
 
     # Return the status of the encoder #
     def readStatusRaw(self) :
@@ -322,10 +321,7 @@ class I2CEncoderLibV21:
 
     # Check if a particular status of the Int2 match. Before require updateStatus() #
     def readInt2(self, status) :
-        if (self.stat2 & status) != 0 :
-            return True
-        else:
-            return False
+        return bool(self.stat2 & status) != 0 )
 
     # Return the Int2 status of the encoder. Before require updateStatus()  #
     def readInt2Raw(self):
@@ -339,8 +335,7 @@ class I2CEncoderLibV21:
     def readFadeStatus(self, status):
         if (self._read_reg(REG_FSTATUS) & status) == 1 :
             return True
-        else:
-            return False
+        return False
 
     # Return the PWM LED R value  #
     def readLEDR(self) :
