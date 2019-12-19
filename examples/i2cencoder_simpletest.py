@@ -84,4 +84,4 @@ encoder.autoconfigInterrupt()
 
 while True:
     if not INT.value:       #If INT pin goes LOW - we know the encoder status changed.
-        Encoder_INT(encoder)
+        Encoder_INT()
