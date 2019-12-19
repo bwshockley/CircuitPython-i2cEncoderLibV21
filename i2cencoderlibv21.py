@@ -321,7 +321,7 @@ class I2CEncoderLibV21:
 
     # Check if a particular status of the Int2 match. Before require updateStatus() #
     def readInt2(self, status) :
-        return bool(self.stat2 & status) != 0 )
+        return bool((self.stat2 & status) != 0 )
 
     # Return the Int2 status of the encoder. Before require updateStatus()  #
     def readInt2Raw(self):
