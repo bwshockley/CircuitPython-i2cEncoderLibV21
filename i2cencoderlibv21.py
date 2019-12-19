@@ -197,13 +197,16 @@ class I2CEncoderLibV21:
     stat2 = 0
     gconf = 0
 
-    def __init__(self, i2c_bus, address, *, config=CONFIG_DEFAULT):
+    def __init__(self, i2c_bus, address):
         """Initialization of the encoder."""
         self.i2c_device = I2CDevice(i2c_bus, address)
-        #self.configure(config)
 
     def begin(self, config=CONFIG_DEFAULT):
-        """Not 100% needed being - may remove later."""
+        """
+        Set the encoder's general configuration.
+
+        :param 1 or 2-byte config: Configuration to be set.
+        """
         self._write_reg(REG_GCONF, config)
         self._write_reg(REG_GCONF2, config >> 8)
         self.gconf = config
