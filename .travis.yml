@@ -44,6 +44,6 @@ install:
   - pip install --force-reinstall pylint==1.9.2
 
 script:
-  - pylint i2cencoderlibv21.py
+  - pylint --disable=missing-docstring,invalid-name i2cencoderlibv21.py
   - ([[ ! -d "examples" ]] || pylint --disable=missing-docstring,invalid-name,bad-whitespace examples/*.py)
   - circuitpython-build-bundles --filename_prefix circuitpython-i2cencoderlibv21 --library_location .
