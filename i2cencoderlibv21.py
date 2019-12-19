@@ -218,10 +218,10 @@ class I2CEncoderLibV21:
     def read_config(self):
         """Read the configuration"""
         return self._read_reg(REG_GCONF)
-      
-    @classmethod
+
     def _event_caller(self, event) :
         """ Call che attached callaback if it is defined."""
+        self._read_reg(REG_GCONF)
         if event:
             event()
 
