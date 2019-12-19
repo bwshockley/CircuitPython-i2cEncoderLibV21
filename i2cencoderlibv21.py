@@ -40,7 +40,7 @@ from adafruit_bus_device.i2c_device import I2CDevice
 
 
 __version__ = "0.0.0-auto.0"
-__repo__ = "https://github.com/bwshockley/CircuitPython_i2cEncoderLibV21.git"
+__repo__ = "https://github.com/bwshockley/CircuitPython-i2cEncoderLibV21.git"
 
 
 # pylint: disable=bad-whitespace
@@ -112,9 +112,11 @@ CLK_STRECH_DISABLE = 0x0000
 REL_MODE_ENABLE = 0x0200
 REL_MODE_DISABLE = 0x0000
 
-CONFIG_DEFAULT = (INT_DATA | WRAP_DISABLE | DIRE_RIGHT | IPUP_ENABLE | RMOD_X1 | RGB_ENCODER)
+CONFIG_DEFAULT = (INT_DATA | WRAP_DISABLE | DIRE_RIGHT
+                 | IPUP_ENABLE | RMOD_X1 | RGB_ENCODER)
 
-# Encoder status bits and setting. Use with: INTCONF for set and with ESTATUS for read the bits  #
+# Encoder status bits and setting.
+# Use with: INTCONF for set and with ESTATUS for read the bits  #
 PUSHR = 0x01
 PUSHP = 0x02
 PUSHD = 0x04
@@ -171,7 +173,8 @@ class I2CEncoderLibV21:
          http://www.duppa.net/i2c-encoder-v2-1/
 
         :param ~busio.I2C i2c_bus: The I2C bus the encoder is connected to.
-        :param address: The I2C slave address of the encoder
+        :param byte address: The I2C slave address of the encoder
+        :param byte config: Initial setup config.  Default is CONFIG_DEFAULT
     """
     onButtonRelease = None
     onButtonPush = None
@@ -197,9 +200,7 @@ class I2CEncoderLibV21:
     def __init__(self, i2c_bus, address, *, config=CONFIG_DEFAULT):
         """Initialization of the encoder."""
         self.i2c_device = I2CDevice(i2c_bus, address)
-        self._buf = bytearray(2)
-        self.configure(config)
-        #selt._status = self.status
+        #self.configure(config)
 
     def begin(self, config=CONFIG_DEFAULT):
         """Not 100% needed being - may remove later."""
@@ -208,85 +209,77 @@ class I2CEncoderLibV21:
         self.gconf = config
 
     def reset(self):
-        """Used to reset the encoder."""
+        """Reset the encoder."""
         self._write_reg(REG_GCONF, RESET)
-
-    def configure(self, config):
-        """Set the configuration - Will set default if no configuration is passed."""
-        self._write_reg(REG_GCONF, config)
-
-    def read_config(self):
-        """Read the configuration"""
-        return self._read_reg(REG_GCONF)
-
-    def _event_caller(self, event) :
-        """ Call che attached callaback if it is defined."""
-        self._read_reg(REG_GCONF)
-        if event:
-            event()
 
     # Return true if the status of the encoder changed, otherwise return false #
     def update_status(self) :
-        """Runs the callback for the encoder status."""
-        temp_stat = self._read_reg(REG_ESTATUS)
-        self.stat = temp_stat[0]
+        """Runs the implemnted callbacks based on encoder status."""
+        self.stat = self._read_reg(REG_ESTATUS)[0]
 
         if self.stat == 0:
             self.stat2 = 0
             return False
 
         if (self.stat & PUSHR) != 0 :
-            self._event_caller (self.onButtonRelease)
+            self.onButtonRelease()
 
         if (self.stat & PUSHP) != 0 :
-            self._event_caller (self.onButtonPush)
+            self.onButtonPush()
 
         if (self.stat & PUSHD) != 0 :
-            self._event_caller (self.onButtonDoublePush)
+            self.onButtonDoublePush()
 
         if (self.stat & RINC) != 0 :
-            self._event_caller (self.onIncrement)
-            self._event_caller (self.onChange)
+            if self.onIncrement:
+                self.onIncrement()
+            if self.onChange:
+                self.onChange()
 
         if (self.stat & RDEC) != 0 :
-            self._event_caller (self.onDecrement)
-            self._event_caller (self.onChange)
+            if self.onDecrement:
+                self.onDecrement()
+            if self.onChange:
+                self.onChange()
 
         if (self.stat & RMAX) != 0 :
-            self._event_caller (self.onMax)
-            self._event_caller (self.onMinMax)
+            if self.onMax:
+                self.onMax()
+            if self.onMinMax:
+                self.onMinMax()
 
         if (self.stat & RMIN) != 0 :
-            self._event_caller (self.onMin)
-            self._event_caller (self.onMinMax)
+            if self.onMin:
+                self.onMin()
+            if self.onMinMax:
+                self.onMinMax()
 
         if (self.stat & INT_2) != 0 :
-            temp_stat2 = self._read_reg(REG_I2STATUS)
-            self.stat2 = temp_stat2[0]
+            self.stat2 = self._read_reg(REG_I2STATUS)[0]
 
             if self.stat2 == 0 :
                 return True
 
             if (self.stat2 & GP1_POS) != 0 :
-                self._event_caller (self.onGP1Rise)
+                self.onGP1Rise()
 
             if (self.stat2 & GP1_NEG) != 0 :
-                self._event_caller (self.onGP1Fall)
+                self.onGP1Fall()
 
             if (self.stat2 & GP2_POS) != 0 :
-                self._event_caller (self.onGP2Rise)
+                self.onGP2Rise()
 
             if (self.stat2 & GP2_NEG) != 0 :
-                self._event_caller (self.onGP2Fall)
+                self.onGP2Fall()
 
             if (self.stat2 & GP3_POS) != 0 :
-                self._event_caller (self.onGP3Rise)
+                self.onGP3Rise()
 
             if (self.stat2 & GP3_NEG) != 0 :
-                self._event_caller (self.onGP3Fall)
+                self.onGP3Fall()
 
             if (self.stat2 & FADE_INT) != 0 :
-                self._event_caller (self.onFadeProcess)
+                self.onFadeProcess()
         return True
 
 
@@ -426,7 +419,11 @@ class I2CEncoderLibV21:
 
     # Read the EEPROM memory#
     def read_eeprom(self, add):
-        """Read the data in the EEPROM"""
+        """
+        Read the data in the EEPROM
+
+        :param byte add: registry address from which to read.
+        """
         if add <= 0x7f:
             if (self.gconf & EEPROM_BANK1) != 0:
                 self.gconf = self.gconf & 0xBF
@@ -441,8 +438,12 @@ class I2CEncoderLibV21:
             data = self._read_reg(add)
         return data
 
-    # Autoconfigure the interrupt register according to the callback declared #
-    def autoconfigInterrupt(self) :
+    def autoconfig_interrupt(self) :
+        """
+        Automatically configures the interrupt register according to
+        the callback(s) declared.
+
+        """
         reg = 0
 
         if self.onButtonRelease != None:
@@ -499,51 +500,51 @@ class I2CEncoderLibV21:
 
 
     # Write the counter value #
-    def writeCounter(self, value) :
+    def write_counter(self, value) :
         self._write_reg32(REG_CVALB4, value)
 
     # Write the counter value #
-    def writeCounterFloat(self, value) :
+    def write_counter_float(self, value) :
         self._write_reg_float(REG_CVALB4, value)
 
     # Write the maximum threshold value #
-    def writeMax(self, max_val) :
+    def write_max(self, max_val) :
         self._write_reg32(REG_CMAXB4, max_val)
 
     # Write the maximum threshold value #
-    def writeMaxFloat(self, max_val) :
+    def write_max_float(self, max_val) :
         self._write_reg_float(REG_CMAXB4, max_val)
 
     # Write the minimum threshold value #
-    def writeMin(self, min_val) :
+    def write_min(self, min_val) :
         self._write_reg32(REG_CMINB4, min_val)
 
     # Write the minimum threshold value #
-    def writeMinFloat(self, min_val) :
+    def write_min_float(self, min_val) :
         self._write_reg_float(REG_CMINB4, min_val)
 
     # Write the Step increment value #
-    def writeStep(self, step):
+    def write_step_size(self, step):
         self._write_reg32(REG_ISTEPB4, step)
 
     # Write the Step increment value #
-    def writeStepFloat(self, step):
+    def write_step_size_float(self, step):
         self._write_reg_float(REG_ISTEPB4, step)
 
     # Write the PWM value of the RGB LED red #
-    def writeLEDR(self, rled):
+    def write_ledr(self, rled):
         self._write_reg(REG_RLED, rled)
 
     # Write the PWM value of the RGB LED green #
-    def writeLEDG(self, gled):
+    def write_ledg(self, gled):
         self._write_reg(REG_GLED, gled)
 
     # Write the PWM value of the RGB LED blue #
-    def writeLEDB(self, bled):
+    def write_ledb(self, bled):
         self._write_reg(REG_BLED, bled)
 
     # Write 24bit color code #
-    def writeRGBCode(self, rgb):
+    def write_rgb_code(self, rgb):
         self._write_reg24(REG_RLED, rgb)
 
     # Write GP1 register, used when GP1 is set to output or PWM #
@@ -558,18 +559,18 @@ class I2CEncoderLibV21:
     def writeGP3(self, gp3):
         self._write_reg(REG_GP3REG, gp3)
 
-    def writeAntiBouncePeriod(self, bounce):
+    def write_antibounce_period(self, bounce):
         self._write_reg(REG_ANTBOUNC, bounce)
 
-    def writeDoublePushPeriod(self, dperiod):
+    def write_double_push_period(self, dperiod):
         self._write_reg(REG_DPPERIOD, dperiod)
 
     # Write Fade timing in ms #
-    def writeFadeRGB(self, fade):
+    def write_fade_rgb(self, fade):
         self._write_reg(REG_FADERGB, fade)
 
     # Write Fade timing in ms #
-    def writeFadeGP(self, fade):
+    def write_fade_gp(self, fade):
         self._write_reg(REG_FADEGP, fade)
 
     # Write the Gamma value on RLED #
@@ -597,9 +598,14 @@ class I2CEncoderLibV21:
         self._write_reg(REG_GAMMAGP3, gamma)
 
     # Write the EEPROM memory#
-    def writeEEPROM(self, add, data):
+    def write_eeprom(self, add, data):
+        """
+        write the data to the EEPROM
 
-        if add <= 0x7f:
+        :param byte add: registry address where to write.
+        :param byte data: 1-Byte of data to write.
+        """
+        if add <= 0x7f: # Prevent writing to protected registry.
             if (self.gconf & EEPROM_BANK1) != 0:
                 self.gconf = self.gconf & 0xBF
                 self._write_reg(REG_GCONF, self.gconf)
@@ -614,7 +620,11 @@ class I2CEncoderLibV21:
 
 
     def setInterrupts(self, interrupts):
-        """Set the Interrupts"""
+        """
+        Set the Interrupt Configuration Manually.
+
+        :param byte interrupts: byte contining interrupt configuration.
+        """
         self._write_reg(REG_INTCONF, interrupts)
 
 
@@ -630,7 +640,6 @@ class I2CEncoderLibV21:
         buffer[0] = reg
         buffer[1] = value
         with self.i2c_device as i2c:
-            #print("Writing: ", [hex(i) for i in buffer])
             i2c.write(buffer)
 
     def _write_reg24(self, reg, value):
@@ -645,7 +654,6 @@ class I2CEncoderLibV21:
         packed_struct = struct.pack('>i', value)
         buffer[1:4] = packed_struct[1:4]
         with self.i2c_device as i2c:
-            #print("Writing: ", [hex(i) for i in buffer])
             i2c.write(buffer)
 
     def _write_reg32(self, reg, value):
@@ -660,61 +668,89 @@ class I2CEncoderLibV21:
         packed_struct = struct.pack('>i', value)
         buffer[1:4] = packed_struct[0:4]
         with self.i2c_device as i2c:
-            #print("Writing: ", [hex(i) for i in buffer])
             i2c.write(buffer)
 
     def _write_reg_float(self, reg, value):
+        """
+        Write four bytes to the registry, as a float.
+
+        :param reg: The registry address where to write the bytes.
+        :param value: the 4-byte data (float) to write.
+        """
         buffer = bytearray(4)
         buffer[0] = reg
         packed_struct = struct.pack('>f', value)
         buffer[1:4] = packed_struct[0:4]
         with self.i2c_device as i2c:
-            #print("Writing: ", [hex(i) for i in buffer])
             i2c.write(buffer)
 
     def _read_reg(self, reg):
+        """
+        Read a single byte from the registry.
+        Returns a bytearray of size 1.
+
+        :param reg: The registry address from which to read.
+        """
         buffer_in = bytearray(1)
         buffer_out = bytearray(1)
         buffer_in[0] = reg
         with self.i2c_device as i2c:
             i2c.write_then_readinto(buffer_in, buffer_out, out_end=1, in_end=None)
-        #print("Read from ", hex(reg), [hex(i) for i in buffer_out])
         return buffer_out
 
     def _read_reg16(self, reg):
+        """
+        Read two bytes from the registry.
+        Returns a bytearray of size 2.
+
+        :param reg: The registry address from which to read.
+        """
         buffer_in = bytearray(1)
         buffer_out = bytearray(2)
         buffer_in[0] = reg
         with self.i2c_device as i2c:
             i2c.write_then_readinto(buffer_in, buffer_out, out_end=1, in_end=None)
-        #print("Read from ", hex(reg), [hex(i) for i in buffer_out])
         return buffer_out
 
     def _read_reg24(self, reg):
+        """
+        Read tree bytes from the registry.
+        Returns a bytearray of size 3.
+
+        :param reg: The registry address from which to read.
+        """
         buffer_in = bytearray(1)
         buffer_out = bytearray(3)
         buffer_in[0] = reg
         with self.i2c_device as i2c:
             i2c.write_then_readinto(buffer_in, buffer_out, out_end=1, in_end=None)
-        #print("Read from ", hex(reg), [hex(i) for i in buffer_out])
         return buffer_out
 
     def _read_reg32(self, reg):
+        """
+        Read four bytes from the registry.
+        Returns a bytearray of size 4.
+
+        :param reg: The registry address from which to read.
+        """
         buffer_in = bytearray(1)
         buffer_out = bytearray(4)
         buffer_in[0] = reg
         with self.i2c_device as i2c:
             i2c.write_then_readinto(buffer_in, buffer_out, out_end=1, in_end=None)
-        #print("Read from ", hex(reg), [hex(i) for i in buffer_out])
         return buffer_out
 
     def _read_reg_float(self, reg):
+        """
+        Read four bytes from the registry.
+        Returns a bytearray of size 4 in float format.
+
+        :param reg: The registry address from which to read.
+        """
         buffer_in = bytearray(1)
         buffer_out = bytearray(4)
         buffer_in[0] = reg
         with self.i2c_device as i2c:
             i2c.write_then_readinto(buffer_in, buffer_out, out_end=1, in_end=None)
         value = struct.unpack(">f", buffer_out)
-        #print("Read from ", hex(reg), [hex(i) for i in buffer_out])
-        #print("Float: ", value)
         return value
