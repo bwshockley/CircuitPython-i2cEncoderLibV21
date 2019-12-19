@@ -221,7 +221,7 @@ class I2CEncoderLibV21:
 
 
 
-    def _event_caller(self, event) :
+    def event_caller(self, event) :
         """ Call che attached callaback if it is defined."""
         if event:
             event()
@@ -237,29 +237,29 @@ class I2CEncoderLibV21:
             return False
 
         if (self.stat & PUSHR) != 0 :
-            self._event_caller (self.onButtonRelease)
+            self.event_caller (self.onButtonRelease)
 
         if (self.stat & PUSHP) != 0 :
-            self._event_caller (self.onButtonPush)
+            self.event_caller (self.onButtonPush)
 
         if (self.stat & PUSHD) != 0 :
-            self._event_caller (self.onButtonDoublePush)
+            self.event_caller (self.onButtonDoublePush)
 
         if (self.stat & RINC) != 0 :
-            self._event_caller (self.onIncrement)
-            self._event_caller (self.onChange)
+            self.event_caller (self.onIncrement)
+            self.event_caller (self.onChange)
 
         if (self.stat & RDEC) != 0 :
-            self._event_caller (self.onDecrement)
-            self._event_caller (self.onChange)
+            self.event_caller (self.onDecrement)
+            self.event_caller (self.onChange)
 
         if (self.stat & RMAX) != 0 :
-            self._event_caller (self.onMax)
-            self._event_caller (self.onMinMax)
+            self.event_caller (self.onMax)
+            self.event_caller (self.onMinMax)
 
         if (self.stat & RMIN) != 0 :
-            self._event_caller (self.onMin)
-            self._event_caller (self.onMinMax)
+            self.event_caller (self.onMin)
+            self.event_caller (self.onMinMax)
 
         if (self.stat & INT_2) != 0 :
             temp_stat2 = self._read_reg(REG_I2STATUS)
@@ -269,25 +269,25 @@ class I2CEncoderLibV21:
                 return True
 
             if (self.stat2 & GP1_POS) != 0 :
-                self._event_caller (self.onGP1Rise)
+                self.event_caller (self.onGP1Rise)
 
             if (self.stat2 & GP1_NEG) != 0 :
-                self._event_caller (self.onGP1Fall)
+                self.event_caller (self.onGP1Fall)
 
             if (self.stat2 & GP2_POS) != 0 :
-                self._event_caller (self.onGP2Rise)
+                self.event_caller (self.onGP2Rise)
 
             if (self.stat2 & GP2_NEG) != 0 :
-                self._event_caller (self.onGP2Fall)
+                self.event_caller (self.onGP2Fall)
 
             if (self.stat2 & GP3_POS) != 0 :
-                self._event_caller (self.onGP3Rise)
+                self.event_caller (self.onGP3Rise)
 
             if (self.stat2 & GP3_NEG) != 0 :
-                self._event_caller (self.onGP3Fall)
+                self.event_caller (self.onGP3Fall)
 
             if (self.stat2 & FADE_INT) != 0 :
-                self._event_caller (self.onFadeProcess)
+                self.event_caller (self.onFadeProcess)
         return True
 
 
@@ -440,7 +440,7 @@ class I2CEncoderLibV21:
                 self._write_reg(REG_GCONF, self.gconf)
 
             data = self._read_reg(add)
-        return (data)
+        return data
 
     # Autoconfigure the interrupt register according to the callback declared #
     def autoconfigInterrupt(self) :
