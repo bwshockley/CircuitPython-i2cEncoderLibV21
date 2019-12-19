@@ -166,9 +166,13 @@ GAMMA_2_4 = 5
 GAMMA_2_6 = 6
 GAMMA_2_8 = 7
 
+class I2CEncoderLibV21:
+    """Helper library for the i2c Encoder from Simon Caron
+         http://www.duppa.net/i2c-encoder-v2-1/
 
-class i2cEncoderLibV21:
-
+        :param ~busio.I2C i2c_bus: The I2C bus the encoder is connected to.
+        :param address: The I2C slave address of the encoder
+    """
     onButtonRelease = None
     onButtonPush = None
     onButtonDoublePush = None
@@ -191,115 +195,121 @@ class i2cEncoderLibV21:
     gconf = 0
 
     def __init__(self, i2c_bus, address, *, config=CONFIG_DEFAULT):
+        """Initialization of the encoder."""
         self.i2c_device = I2CDevice(i2c_bus, address)
         self._buf = bytearray(2)
         self.configure(config)
         #selt._status = self.status
 
     def begin(self, config=CONFIG_DEFAULT):
+        """Not 100% needed being - may remove later."""
         self._write_reg(REG_GCONF, config)
         self._write_reg(REG_GCONF2, config >> 8)
         self.gconf = config
 
     def reset(self):
+        """Used to reset the encoder."""
         self._write_reg(REG_GCONF, RESET)
 
     def configure(self, config):
         """Set the configuration - Will set default if no configuration is passed."""
         self._write_reg(REG_GCONF, config)
 
-    def readConfig(self):
+    def read_config(self):
+        """Read the configuration"""
         config = self._read_reg(REG_GCONF)
 
 
-    # Call che attached callaback if it is defined #
-    def eventCaller(self, event) :
+
+    def _event_caller(self, event) :
+        """ Call che attached callaback if it is defined."""
         if event:
             event()
 
     # Return true if the status of the encoder changed, otherwise return false #
-    def updateStatus(self) :
+    def update_status(self) :
+        """Runs the callback for the encoder status."""
         temp_stat = self._read_reg(REG_ESTATUS)
         self.stat = temp_stat[0]
 
-        if (self.stat == 0):
+        if self.stat == 0:
             self.stat2 = 0
             return False
 
         if (self.stat & PUSHR) != 0 :
-            self.eventCaller (self.onButtonRelease)
+            self._event_caller (self.onButtonRelease)
 
         if (self.stat & PUSHP) != 0 :
-            self.eventCaller (self.onButtonPush)
+            self._event_caller (self.onButtonPush)
 
         if (self.stat & PUSHD) != 0 :
-            self.eventCaller (self.onButtonDoublePush)
+            self._event_caller (self.onButtonDoublePush)
 
         if (self.stat & RINC) != 0 :
-            self.eventCaller (self.onIncrement)
-            self.eventCaller (self.onChange)
+            self._event_caller (self.onIncrement)
+            self._event_caller (self.onChange)
 
         if (self.stat & RDEC) != 0 :
-            self.eventCaller (self.onDecrement)
-            self.eventCaller (self.onChange)
+            self._event_caller (self.onDecrement)
+            self._event_caller (self.onChange)
 
         if (self.stat & RMAX) != 0 :
-            self.eventCaller (self.onMax)
-            self.eventCaller (self.onMinMax)
+            self._event_caller (self.onMax)
+            self._event_caller (self.onMinMax)
 
         if (self.stat & RMIN) != 0 :
-            self.eventCaller (self.onMin)
-            self.eventCaller (self.onMinMax)
+            self._event_caller (self.onMin)
+            self._event_caller (self.onMinMax)
 
         if (self.stat & INT_2) != 0 :
             temp_stat2 = self._read_reg(REG_I2STATUS)
             self.stat2 = temp_stat2[0]
 
-            if (self.stat2 == 0) :
+            if self.stat2 == 0 :
                 return True
 
             if (self.stat2 & GP1_POS) != 0 :
-                self.eventCaller (self.onGP1Rise)
+                self._event_caller (self.onGP1Rise)
 
             if (self.stat2 & GP1_NEG) != 0 :
-                self.eventCaller (self.onGP1Fall)
+                self._event_caller (self.onGP1Fall)
 
             if (self.stat2 & GP2_POS) != 0 :
-                self.eventCaller (self.onGP2Rise)
+                self._event_caller (self.onGP2Rise)
 
             if (self.stat2 & GP2_NEG) != 0 :
-                self.eventCaller (self.onGP2Fall)
+                self._event_caller (self.onGP2Fall)
 
             if (self.stat2 & GP3_POS) != 0 :
-                self.eventCaller (self.onGP3Rise)
+                self._event_caller (self.onGP3Rise)
 
             if (self.stat2 & GP3_NEG) != 0 :
-                self.eventCaller (self.onGP3Fall)
+                self._event_caller (self.onGP3Fall)
 
             if (self.stat2 & FADE_INT) != 0 :
-                self.eventCaller (self.onFadeProcess)
+                self._event_caller (self.onFadeProcess)
         return True
 
 
-    #********************************* Read functions ***********************************#
+    # Read functions #
 
     # Return the GP1 Configuration#
     def readGP1conf(self) :
-        return (self._read_reg(REG_GP1CONF))
+        return self._read_reg(REG_GP1CONF)
 
     # Return the GP1 Configuration#
     def readGP2conf(self) :
-        return (self._read_reg(REG_GP2CONF))
+        return self._read_reg(REG_GP2CONF)
 
     # Return the GP1 Configuration#
     def readGP3conf(self) :
-        return (self._read_reg(REG_GP3CONF))
+        return self._read_reg(REG_GP3CONF)
 
     # Return the INT pin configuration#
     def readInterruptConfig(self) :
-        return (self._read_reg(REG_INTCONF))
+        return self._read_reg(REG_INTCONF)
 
-    # Check if a particular status match, return true is match otherwise false. Before require updateStatus() #
+    # Check if a particular status match.  Before require updateStatus() #
     def readStatus(self, status) :
         if (self.stat & status) != 0 :
             return True
@@ -310,7 +320,7 @@ class i2cEncoderLibV21:
     def readStatusRaw(self) :
         return self.stat
 
-    # Check if a particular status of the Int2 match, return true is match otherwise false. Before require updateStatus() #
+    # Check if a particular status of the Int2 match. Before require updateStatus() #
     def readInt2(self, status) :
         if (self.stat2 & status) != 0 :
             return True
@@ -325,7 +335,7 @@ class i2cEncoderLibV21:
     def readFadeStatusRaw(self):
         return self._read_reg(REG_FSTATUS)
 
-    # Check if a particular status of the Fade process match, return true is match otherwise false. #
+    # Check if a particular status of the Fade process match. #
     def readFadeStatus(self, status):
         if (self._read_reg(REG_FSTATUS) & status) == 1 :
             return True
@@ -334,79 +344,79 @@ class i2cEncoderLibV21:
 
     # Return the PWM LED R value  #
     def readLEDR(self) :
-        return (self._read_reg(REG_RLED))
+        return self._read_reg(REG_RLED)
 
     # Return the PWM LED G value  #
     def readLEDG(self) :
-        return (self._read_reg(REG_GLED))
+        return self._read_reg(REG_GLED)
 
     # Return the PWM LED B value  #
     def readLEDB(self) :
-        return (self._read_reg(REG_BLED))
+        return self._read_reg(REG_BLED)
 
     # Return the 32 bit value of the encoder counter  #
     def readCounterFloat(self) :
-        return (self.readEncoderFloat(REG_CVALB4))
+        return self.readEncoderFloat(REG_CVALB4)
 
     # Return the 32 bit value of the encoder counter  #
     def readCounter32(self) :
-        return (self._read_reg32(REG_CVALB4))
+        return self._read_reg32(REG_CVALB4)
 
     # Return the 16 bit value of the encoder counter  #
     def readCounter16(self) :
-        return (self._read_reg16(REG_CVALB2))
+        return self._read_reg16(REG_CVALB2)
 
     # Return the 8 bit value of the encoder counter  #
     def readCounter8(self) :
-        return (self._read_reg(REG_CVALB1))
+        return self._read_reg(REG_CVALB1)
 
     # Return the Maximum threshold of the counter #
     def readMax(self) :
-        return (self._read_reg32(REG_CMAXB4))
+        return self._read_reg32(REG_CMAXB4)
 
     # Return the Minimum threshold of the counter #
     def readMin(self) :
-        return (self._read_reg32(REG_CMINB4))
+        return self._read_reg32(REG_CMINB4)
 
     # Return the Maximum threshold of the counter #
     def readMaxFloat(self) :
-        return (self.readEncoderFloat(REG_CMAXB4))
+        return self.readEncoderFloat(REG_CMAXB4)
 
     # Return the Minimum threshold of the counter #
     def readMinFloat(self) :
-        return (self.readEncoderFloat(REG_CMINB4))
+        return self.readEncoderFloat(REG_CMINB4)
 
     # Return the Steps increment #
     def readStep(self) :
-        return (self._read_reg16(REG_ISTEPB4))
+        return self._read_reg16(REG_ISTEPB4)
 
     # Return the Steps increment, in float variable #
     def readStepFloat(self) :
-        return (self.readEncoderFloat(REG_ISTEPB4))
+        return self.readEncoderFloat(REG_ISTEPB4)
 
     # Read GP1 register value #
     def readGP1(self) :
-        return (self._read_reg(REG_GP1REG))
+        return self._read_reg(REG_GP1REG)
 
     # Read GP2 register value #
     def readGP2(self) :
-        return (self._read_reg(REG_GP2REG))
+        return self._read_reg(REG_GP2REG)
 
     # Read GP3 register value #
     def readGP3(self) :
-        return (self._read_reg(REG_GP3REG))
+        return self._read_reg(REG_GP3REG)
 
     # Read Anti-bouncing period register #
     def readAntibouncingPeriod(self) :
-        return (self._read_reg(REG_ANTBOUNC))
+        return self._read_reg(REG_ANTBOUNC)
 
     # Read Double push period register #
     def readDoublePushPeriod(self) :
-        return (self._read_reg(REG_DPPERIOD))
+        return self._read_reg(REG_DPPERIOD)
 
     # Read the fade period of the RGB LED#
     def readFadeRGB(self) :
-        return (self._read_reg(REG_FADERGB))
+        return self._read_reg(REG_FADERGB)
 
     # Read the fade period of the GP LED#
     def readFadeGP(self):
@@ -421,8 +431,8 @@ class i2cEncoderLibV21:
         return self._read_reg(REG_VERSION)
 
     # Read the EEPROM memory#
-    def readEEPROM(self, add):
-
+    def read_eeprom(self, add):
+        """Read the data in the EEPROM"""
         if add <= 0x7f:
             if (self.gconf & EEPROM_BANK1) != 0:
                 self.gconf = self.gconf & 0xBF
@@ -435,62 +445,60 @@ class i2cEncoderLibV21:
                 self._write_reg(REG_GCONF, self.gconf)
 
             data = self._read_reg(add)
-
-        sleep(0.001)
         return (data)
 
     # Autoconfigure the interrupt register according to the callback declared #
     def autoconfigInterrupt(self) :
         reg = 0
 
-        if (self.onButtonRelease != None):
+        if self.onButtonRelease != None:
             reg = reg | PUSHR
 
-        if (self.onButtonPush != None):
+        if self.onButtonPush != None:
             reg = reg | PUSHP
 
-        if (self.onButtonDoublePush != None):
+        if self.onButtonDoublePush != None:
             reg = reg | PUSHD
 
-        if (self.onIncrement != None):
+        if self.onIncrement != None:
             reg = reg | RINC
 
-        if (self.onDecrement != None):
+        if self.onDecrement != None:
             reg = reg | RDEC
 
-        if (self.onChange != None):
+        if self.onChange != None:
             reg = reg | RINC
             reg = reg | RDEC
 
-        if (self.onMax != None):
+        if self.onMax != None:
             reg = reg | RMAX
 
-        if (self.onMin != None):
+        if self.onMin != None:
             reg = reg | RMIN
 
-        if (self.onMinMax != None):
+        if self.onMinMax != None:
             reg = reg | RMAX
             reg = reg | RMIN
 
-        if (self.onGP1Rise != None):
+        if self.onGP1Rise != None:
             reg = reg | INT_2
 
-        if (self.onGP1Fall != None):
+        if self.onGP1Fall != None:
             reg = reg | INT_2
 
-        if (self.onGP2Rise != None):
+        if self.onGP2Rise != None:
             reg = reg | INT_2
 
-        if (self.onGP2Fall != None):
+        if self.onGP2Fall != None:
             reg = reg | INT_2
 
-        if (self.onGP3Rise != None):
+        if self.onGP3Rise != None:
             reg = reg | INT_2
 
-        if (self.onGP3Fall != None):
+        if self.onGP3Fall != None:
             reg = reg | INT_2
 
-        if (self.onFadeProcess != None):
+        if self.onFadeProcess != None:
             reg = reg | INT_2
 
         self._write_reg(REG_INTCONF, reg)
@@ -505,20 +513,20 @@ class i2cEncoderLibV21:
         self._write_reg_float(REG_CVALB4, value)
 
     # Write the maximum threshold value #
-    def writeMax(self, max) :
-        self._write_reg32(REG_CMAXB4, max)
+    def writeMax(self, max_val) :
+        self._write_reg32(REG_CMAXB4, max_val)
 
     # Write the maximum threshold value #
-    def writeMaxFloat(self, max) :
-        self._write_reg_float(REG_CMAXB4, max)
+    def writeMaxFloat(self, max_val) :
+        self._write_reg_float(REG_CMAXB4, max_val)
 
     # Write the minimum threshold value #
-    def writeMin(self, min) :
-        self._write_reg32(REG_CMINB4, min)
+    def writeMin(self, min_val) :
+        self._write_reg32(REG_CMINB4, min_val)
 
     # Write the minimum threshold value #
-    def writeMinFloat(self, min) :
-        self._write_reg_float(REG_CMINB4, min)
+    def writeMinFloat(self, min_val) :
+        self._write_reg_float(REG_CMINB4, min_val)
 
     # Write the Step increment value #
     def writeStep(self, step):
@@ -610,14 +618,20 @@ class i2cEncoderLibV21:
 
             self._write_reg(add, data)
 
-        time.sleep(0.001)
 
     def setInterrupts(self, interrupts):
+        """Set the Interrupts"""
         self._write_reg(REG_INTCONF, interrupts)
 
 
     ### Generic Read / Write Functions ###
     def _write_reg(self, reg, value):
+        """
+        Write a single byte to the registry.
+
+        :param reg: The registry address where to write the byte.
+        :param value: the byte data to write.
+        """
         buffer = bytearray(2)
         buffer[0] = reg
         buffer[1] = value
@@ -626,19 +640,31 @@ class i2cEncoderLibV21:
             i2c.write(buffer)
 
     def _write_reg24(self, reg, value):
+        """
+        Write three bytes to the registry.
+
+        :param reg: The registry address where to write the bytes.
+        :param value: the 3-byte data (24-bit) to write.
+        """
         buffer = bytearray(3)
         buffer[0] = reg
-        s = struct.pack('>i', value)
-        buffer[1:4] = s[1:4]
+        packed_struct = struct.pack('>i', value)
+        buffer[1:4] = packed_struct[1:4]
         with self.i2c_device as i2c:
             #print("Writing: ", [hex(i) for i in buffer])
             i2c.write(buffer)
 
     def _write_reg32(self, reg, value):
+        """
+        Write four bytes to the registry.
+
+        :param reg: The registry address where to write the bytes.
+        :param value: the 4-byte data (32-bit) to write.
+        """
         buffer = bytearray(4)
         buffer[0] = reg
-        s = struct.pack('>i', value)
-        buffer[1:4] = s[0:4]
+        packed_struct = struct.pack('>i', value)
+        buffer[1:4] = packed_struct[0:4]
         with self.i2c_device as i2c:
             #print("Writing: ", [hex(i) for i in buffer])
             i2c.write(buffer)
@@ -646,8 +672,8 @@ class i2cEncoderLibV21:
     def _write_reg_float(self, reg, value):
         buffer = bytearray(4)
         buffer[0] = reg
-        s = struct.pack('>f', value)
-        buffer[1:4] = s[0:4]
+        packed_struct = struct.pack('>f', value)
+        buffer[1:4] = packed_struct[0:4]
         with self.i2c_device as i2c:
             #print("Writing: ", [hex(i) for i in buffer])
             i2c.write(buffer)
