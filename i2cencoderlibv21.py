@@ -220,7 +220,7 @@ class I2CEncoderLibV21:
         return self._read_reg(REG_GCONF)
 
 
-
+    @staticmethod
     def _event_caller(self, event) :
         """ Call che attached callaback if it is defined."""
         if event:
