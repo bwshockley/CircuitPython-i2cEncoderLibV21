@@ -351,7 +351,7 @@ class I2CEncoderLibV21:
 
     # Return the 32 bit value of the encoder counter  #
     def readCounterFloat(self) :
-        return self.readEncoderFloat(REG_CVALB4)
+        return self._read_reg_float(REG_CVALB4)
 
     # Return the 32 bit value of the encoder counter  #
     def readCounter32(self) :
@@ -375,11 +375,11 @@ class I2CEncoderLibV21:
 
     # Return the Maximum threshold of the counter #
     def readMaxFloat(self) :
-        return self.readEncoderFloat(REG_CMAXB4)
+        return self._read_reg_float(REG_CMAXB4)
 
     # Return the Minimum threshold of the counter #
     def readMinFloat(self) :
-        return self.readEncoderFloat(REG_CMINB4)
+        return self._read_reg_float(REG_CMINB4)
 
     # Return the Steps increment #
     def readStep(self) :
@@ -387,7 +387,7 @@ class I2CEncoderLibV21:
 
     # Return the Steps increment, in float variable #
     def readStepFloat(self) :
-        return self.readEncoderFloat(REG_ISTEPB4)
+        return self._read_reg_float(REG_ISTEPB4)
 
     # Read GP1 register value #
     def readGP1(self) :
@@ -504,32 +504,32 @@ class I2CEncoderLibV21:
         self._write_reg32(REG_CVALB4, value)
 
     # Write the counter value #
-    #def writeCounterFloat(self, value) :
-    #    self._write_reg_float(REG_CVALB4, value)
+    def writeCounterFloat(self, value) :
+        self._write_reg_float(REG_CVALB4, value)
 
     # Write the maximum threshold value #
     def writeMax(self, max_val) :
         self._write_reg32(REG_CMAXB4, max_val)
 
     # Write the maximum threshold value #
-    #def writeMaxFloat(self, max_val) :
-    #    self._write_reg_float(REG_CMAXB4, max_val)
+    def writeMaxFloat(self, max_val) :
+        self._write_reg_float(REG_CMAXB4, max_val)
 
     # Write the minimum threshold value #
     def writeMin(self, min_val) :
         self._write_reg32(REG_CMINB4, min_val)
 
     # Write the minimum threshold value #
-    #def writeMinFloat(self, min_val) :
-    #    self._write_reg_float(REG_CMINB4, min_val)
+    def writeMinFloat(self, min_val) :
+        self._write_reg_float(REG_CMINB4, min_val)
 
     # Write the Step increment value #
     def writeStep(self, step):
         self._write_reg32(REG_ISTEPB4, step)
 
     # Write the Step increment value #
-    #def writeStepFloat(self, step):
-    #    self._write_reg_float(REG_ISTEPB4, step)
+    def writeStepFloat(self, step):
+        self._write_reg_float(REG_ISTEPB4, step)
 
     # Write the PWM value of the RGB LED red #
     def writeLEDR(self, rled):
