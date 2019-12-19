@@ -113,7 +113,7 @@ REL_MODE_ENABLE = 0x0200
 REL_MODE_DISABLE = 0x0000
 
 CONFIG_DEFAULT = (INT_DATA | WRAP_DISABLE | DIRE_RIGHT
-                 | IPUP_ENABLE | RMOD_X1 | RGB_ENCODER)
+                  | IPUP_ENABLE | RMOD_X1 | RGB_ENCODER)
 
 # Encoder status bits and setting.
 # Use with: INTCONF for set and with ESTATUS for read the bits  #
