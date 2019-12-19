@@ -8,7 +8,7 @@ import struct
 import busio
 import board
 import digitalio
-import i2cEncoderLibV21
+import i2cEencoderlibv21
 
 # Setup the Inturrpt Pin from the encoder.  
 INT = digitalio.DigitalInOut(board.A3)
@@ -17,7 +17,7 @@ INT.pull = digitalio.Pull.UP
 
 # Initialize the device.
 i2c = busio.I2C(board.SCL, board.SDA)
-encoder = i2cEncoderLibV21.i2cEncoderLibV21(i2c, 0x21)
+encoder = i2cencoderlibv21.I2CEncoderLibV21(i2c, 0x21)
 
 def EncoderChange():
     encoder.writeRGBCode(0x00FF00)
