@@ -10,7 +10,7 @@ import board
 import digitalio
 import i2cencoderlibv21
 
-# Setup the Inturrpt Pin from the encoder.  
+# Setup the Inturrpt Pin from the encoder.
 INT = digitalio.DigitalInOut(board.A3)
 INT.direction = digitalio.Direction.INPUT
 INT.pull = digitalio.Pull.UP
@@ -27,7 +27,7 @@ def EncoderChange():
 def EncoderPush():
     encoder.writeRGBCode(0x0000FF)
     print ('Encoder Pushed!')
-    
+
 def EncoderRelease():
     encoder.writeRGBCode(0x00FFFF)
     print ('Encoder Released!')
@@ -48,14 +48,14 @@ def EncoderFade():
     encoder.writeRGBCode(0x000000)
 
 def Encoder_INT(self):
-    encoder.updateStatus()
+    encoder.update_status()
 
 # Start by resetting the encoder. Reset takes 400us , so let us give it time to settle.
 encoder.reset()
 time.sleep(.1)
 
 # When the board was initialized, the default config was loaded.  Here we can override that config if we want.
-encconfig = (i2cEncoderLibV21.INT_DATA | i2cEncoderLibV21.WRAP_DISABLE | i2cEncoderLibV21.DIRE_RIGHT | i2cEncoderLibV21.IPUP_ENABLE | i2cEncoderLibV21.RMOD_X1 | i2cEncoderLibV21.RGB_ENCODER)
+encconfig = (i2cencoderlibv21.INT_DATA | i2cencoderlibv21.WRAP_DISABLE | i2cencoderlibv21.DIRE_RIGHT | i2cencoderlibv21.IPUP_ENABLE | i2cencoderlibv21.RMOD_X1 | i2cencoderlibv21.RGB_ENCODER)
 encoder.begin(encconfig)
 
 # Setup other varibles
