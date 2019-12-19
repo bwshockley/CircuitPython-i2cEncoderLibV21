@@ -8,7 +8,7 @@ import struct
 import busio
 import board
 import digitalio
-import i2cEencoderlibv21
+import i2cencoderlibv21
 
 # Setup the Inturrpt Pin from the encoder.  
 INT = digitalio.DigitalInOut(board.A3)
