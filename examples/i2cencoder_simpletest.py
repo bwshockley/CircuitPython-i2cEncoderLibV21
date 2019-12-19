@@ -56,8 +56,8 @@ time.sleep(.1)
 
 # When the board was initialized, the default config was loaded.
 # Here we can override that config if we want.
-encconfig = (i2cencoderlibv21.INT_DATA | i2cencoderlibv21.WRAP_DISABLE,
-             | i2cencoderlibv21.DIRE_RIGHT | i2cencoderlibv21.IPUP_ENABLE,
+encconfig = (i2cencoderlibv21.INT_DATA | i2cencoderlibv21.WRAP_DISABLE
+             | i2cencoderlibv21.DIRE_RIGHT | i2cencoderlibv21.IPUP_ENABLE
              | i2cencoderlibv21.RMOD_X1 | i2cencoderlibv21.RGB_ENCODER)
 encoder.begin(encconfig)
 
