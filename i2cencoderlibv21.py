@@ -695,7 +695,7 @@ class I2CEncoderLibV21:
         buffer_out = bytearray(1)
         buffer_in[0] = reg
         with self.i2c_device as i2c:
-            i2c.write_then_readinto(buffer_in, buffer_out, out_end=1, in_end=None)
+            i2c.write_then_readinto(buffer_in, buffer_out, out_end=1, in_end=1)
         return buffer_out
 
     def _read_reg16(self, reg):
@@ -709,7 +709,7 @@ class I2CEncoderLibV21:
         buffer_out = bytearray(2)
         buffer_in[0] = reg
         with self.i2c_device as i2c:
-            i2c.write_then_readinto(buffer_in, buffer_out, out_end=1, in_end=None)
+            i2c.write_then_readinto(buffer_in, buffer_out, out_end=1, in_end=2)
         return buffer_out
 
     def _read_reg24(self, reg):
@@ -723,7 +723,7 @@ class I2CEncoderLibV21:
         buffer_out = bytearray(3)
         buffer_in[0] = reg
         with self.i2c_device as i2c:
-            i2c.write_then_readinto(buffer_in, buffer_out, out_end=1, in_end=None)
+            i2c.write_then_readinto(buffer_in, buffer_out, out_end=1, in_end=3)
         return buffer_out
 
     def _read_reg32(self, reg):
@@ -737,7 +737,7 @@ class I2CEncoderLibV21:
         buffer_out = bytearray(4)
         buffer_in[0] = reg
         with self.i2c_device as i2c:
-            i2c.write_then_readinto(buffer_in, buffer_out, out_end=1, in_end=None)
+            i2c.write_then_readinto(buffer_in, buffer_out, out_end=1, in_end=4)
         return buffer_out
 
     def _read_reg_float(self, reg):
